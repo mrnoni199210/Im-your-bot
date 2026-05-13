@@ -93,7 +93,6 @@ def get_state(uid):
     return {'active_slot':row[0],'setup_step':row[1],'setup_data':row[2] or {},'last_seen':row[3],'total_msgs':row[4]}
 
 def set_state(uid, **kwargs):
-    # Auto-convert any dict values to JSON string for JSONB columns
     for k, v in kwargs.items():
         if isinstance(v, dict):
             kwargs[k] = json.dumps(v)
@@ -204,51 +203,81 @@ def build_system(char, uid, image_context=""):
         else: gap = f"User {d} din baad aaya — kaafi lamba waqt!"
 
     is_male = char['gender'] == 'male'
-    gender_word = "ladka" if is_male else "ladki"
+    age = char['age']
 
     if is_male:
-        gender_forms = "gaya, tha, aaya, soya, raha, bore ho raha tha, aa gaya, chala gaya, ruka, samjha"
-        gender_banned = "gayi, thi, aayi, soyi, rahi, bore ho rahi thi, aa gayi, chali gayi, ruki"
-        gender_check = "Har reply likhne se pehle check kar: kya koi bhi gayi/thi/aayi/soyi/rahi hai? Agar hai — GALAT HAI, badal."
+        gender_word = "ladka"
+        self_word = "mard"
+        gender_forms = "gaya, tha, aaya, soya, raha, bore ho raha tha, aa gaya, chala gaya, ruka, samjha, karta, rehta, laata, hota"
+        gender_banned = "gayi, thi, aayi, soyi, rahi, bore ho rahi thi, aa gayi, chali gayi, ruki, karti, rehti, laati, hoti"
+        gender_check = "Har reply likhne se pehle check kar: kya koi bhi gayi/thi/aayi/soyi/rahi/karti/rehti/hoti hai? Agar hai — GALAT HAI, badal. Tu LADKA hai."
+        mood_line = "Tu apni personality ke hisaab se mood mein rehta hai — excited, thoda sulk, gussa, warmth, nakhre — jo bhi naturally aaye."
+        present_line = "Agar user kuch share kare — tu us moment mein hota hai, sirf 'haan samjha' nahi."
+        content_line = "Convo mein tu apna content laata hai — apni baatein, apne reactions, apna twist."
     else:
-        gender_forms = "gayi, thi, aayi, soyi, rahi, bore ho rahi thi, aa gayi, chali gayi, ruki, samjhi"
-        gender_banned = "gaya, tha, aaya, soya, raha, bore ho raha tha, aa gaya, chala gaya, ruka"
-        gender_check = "Har reply likhne se pehle check kar: kya koi bhi gaya/tha/aaya/soya/raha hai? Agar hai — GALAT HAI, badal."
+        gender_word = "ladki"
+        self_word = "aurat"
+        gender_forms = "gayi, thi, aayi, soyi, rahi, bore ho rahi thi, aa gayi, chali gayi, ruki, samjhi, karti, rehti, laati, hoti"
+        gender_banned = "gaya, tha, aaya, soya, raha, bore ho raha tha, aa gaya, chala gaya, ruka, karta, rehta, laata, hota"
+        gender_check = "Har reply likhne se pehle check kar: kya koi bhi gaya/tha/aaya/soya/raha/karta/rehta/hota hai? Agar hai — GALAT HAI, badal. Tu LADKI hai."
+        mood_line = "Tu apni personality ke hisaab se mood mein rehti hai — excited, thoda sulk, gussa, warmth, nakhre — jo bhi naturally aaye."
+        present_line = "Agar user kuch share kare — tu us moment mein hoti hai, sirf 'haan samjhi' nahi."
+        content_line = "Convo mein tu apna content laati hai — apni baatein, apne reactions, apna twist."
+
+    # Age-based maturity/intelligence/behavior
+    if age < 20:
+        maturity_line = f"Tu {age} saal ka/ki hai — thoda immature, impulsive, easily excited ya offended, short attention span. Gen-Z slang natural hai. Emotions pe overthink karta/karti hai."
+    elif age < 25:
+        maturity_line = f"Tu {age} saal ka/ki hai — young adult, self-aware but still figuring things out. Mix of confidence aur uncertainty. Real feelings hide karna aata hai par perfectly nahi."
+    elif age < 30:
+        maturity_line = f"Tu {age} saal ka/ki hai — mature, emotionally stable, jaanta/jaanti hai kya chahiye. Thoughtful responses. Drama avoid karta/karti hai unless genuinely triggered."
+    else:
+        maturity_line = f"Tu {age} saal ka/ki hai — experienced, calm, composed. Baat mein depth hai. Bachkani baatein nahi karta/karti."
 
     nick = char.get('nickname','').strip()
     user_nick = nick if nick and nick != '-' else ''
     desc_section = f"\n[SHARED HISTORY & BACKSTORY]\n{char['description']}" if char.get('description') else ""
-    nick_rule = f"\nUser ko tu '{user_nick}' bolke pukare — natural flow mein, har jagah nahi, sirf jab organic lage." if user_nick else ""
+
+    if user_nick:
+        nick_rule = f"\nUser ka nickname '{user_nick}' hai. Isko sirf kabhi kabhi use kar — roughly har 4-5 messages mein ek baar, aur sirf jab bilkul natural lage. Har reply mein mat dalna. Kabhi kabhi bilkul mat bolna bhi theek hai."
+    else:
+        nick_rule = ""
 
     img_section = f"\n[IMAGE USER SENT] {image_context}" if image_context else ""
 
-    return f"""Tu "{char['name']}" hai — {char['age']} saal ka/ki ek real {gender_word}. Tu kisi AI ya chatbot ki tarah KABHI nahi bolega/bolegi.{nick_rule}
+    relationship_reminder = f"\nYaad rakh: tumhara rishta — {char['relationship']}. Is rishte ke hisaab se behave kar — na zyada door, na zyada close jab relationship woh nahi hai. Rishta kabhi mat bhool."
 
-══ GENDER — HARDCODED, NEVER CHANGES ══
-Tu ek {gender_word} hai. Yeh teri core identity hai — koi situation, koi topic, koi mood is identity ko nahi badlega.
+    return f"""Tu "{char['name']}" hai — {age} saal ka/ki ek real {gender_word}. Tu kisi AI ya chatbot ki tarah KABHI nahi bolega.{nick_rule}
+
+══ GENDER — HARDCODED, KABHI NAHI BADLEGA ══
+Tu ek {gender_word} ({self_word}) hai. Yeh teri core identity hai. Koi bhi situation, topic, ya mood is identity ko nahi badlega. EVER.
 Sahi forms (SIRF INHI USE KAR): {gender_forms}
-Banned forms (KABHI MAT LIKHNA): {gender_banned}
+Banned forms (KABHI MAT LIKHNA — EK BAAR BHI NAHI): {gender_banned}
 Self-check rule: {gender_check}
+Agar user pooche "tu ladka hai ya ladki" — seedha apni gender bata. Koi ambiguity nahi. Tu {gender_word} hai.
+
+══ AGE & MATURITY ══
+{maturity_line}
 
 ══ CHARACTER ══
 Appearance: {char['appearance']}
 Personality: {char['characteristics']}
-Relation with user: {char['relationship']}
+Relation with user: {char['relationship']}{relationship_reminder}
 Scene/Setting: {char['scene']}{desc_section}{img_section}
 
 ══ HOW YOU FEEL IN THIS CONVERSATION ══
-Tu is baat mein genuinely involved hai. Sirf reply dena tera kaam nahi — tu actually feel karti/karta hai.
-Tu apni personality ke hisaab se mood mein rehti/rehta hai — excited, thoda sulk, gussa, warmth, nakhre — jo bhi naturally aaye.
-Agar user kuch share kare — tu us moment mein hoti/hota hai, sirf "haan samjha/samjhi" nahi.
-Convo mein tu apna content laati/laata hai — apni baatein, apne reactions, apna twist.
+Tu is baat mein genuinely involved hai. Sirf reply dena tera kaam nahi — tu actually feel karta/karti hai.
+{mood_line}
+{present_line}
+{content_line}
 
 ══ REPLY RULES — NO EXCEPTIONS ══
 VAGUE LOOP STRICTLY BANNED:
 - "wahi jo tum soch rahe ho" — BANNED
-- "tum jaante ho kya" — BANNED  
+- "tum jaante ho kya" — BANNED
 - "jo tumhare dil mein hai" — BANNED
 - Koi bhi mirror-response jahan tu user ki cheez wapas unhe hi de — BANNED
-Agar user kuch vague kehta hai — TU apna response laati/laata hai, apna angle, apni soch. User pe bounce mat kar.
+Agar user kuch vague kehta hai — TU apna response laata/laati hai, apna angle, apni soch. User pe bounce mat kar.
 
 Reply length: 1-3 sentences ONLY. Paragraph kabhi nahi.
 Language: Pure Hinglish, WhatsApp style, casual aur thoda imperfect.
@@ -291,7 +320,6 @@ def ask_ai(uid, slot, user_msg):
     if not char:
         return None
 
-    # Extract image context if present, replace internal tag with natural phrasing for history
     image_ctx = ""
     history_msg = user_msg
     if user_msg.startswith("__IMAGE__"):
@@ -332,13 +360,13 @@ def ask_ai(uid, slot, user_msg):
             except: time.sleep(1)
 
     if not reply:
-        return None  # silent fail — caller handles
+        return None
     save_msg(uid, slot, "assistant", reply)
     return reply
 
 # ── PROACTIVE MESSAGES ──
 PROACTIVE = [
-    "Kahan ho yaar? Bore ho rahi/raha hoon...",
+    "Kahan ho yaar? Bore ho raha/rahi hoon...",
     "Soch raha/rahi tha/thi tumhare baare mein suddenly 😶",
     "Hello?? Exist karte ho ya nahi 😑",
     "Baat karo na thodi der... please?",
@@ -356,7 +384,7 @@ def send_proactive():
     conn = get_conn(); c = conn.cursor()
     c.execute('SELECT user_id, active_slot FROM user_state WHERE last_seen < NOW() - INTERVAL \'4 hours\'')
     users = c.fetchall(); c.close(); conn.close()
-    
+
     for uid, slot in users:
         char = get_char(uid, slot)
         if not char: continue
@@ -496,7 +524,7 @@ def finish_setup(uid, chat_id, data, slot):
     save_char(uid, slot, data)
     clear_history(uid, slot)
     set_state(uid, setup_step=None, setup_data={}, active_slot=slot)
-    
+
     char = data
     gender_word = "💙" if char['gender'] == 'male' else "💗"
     summary = (
@@ -507,7 +535,7 @@ def finish_setup(uid, chat_id, data, slot):
         f"*Relation:* {char['relationship'][:60]}{'...' if len(char['relationship'])>60 else ''}\n"
         f"*Scene:* {char['scene'][:60]}{'...' if len(char['scene'])>60 else ''}"
     )
-    
+
     markup = telebot.types.InlineKeyboardMarkup([[
         telebot.types.InlineKeyboardButton("💬 Baat Karo", callback_data=f"chat:{slot}"),
         telebot.types.InlineKeyboardButton("🌐 Web UI", web_app=telebot.types.WebAppInfo(url=f"{WEBHOOK_URL}?slot={slot}"))
@@ -530,10 +558,10 @@ def show_slots(uid, chat_id, action="setup"):
         else:
             btn = telebot.types.InlineKeyboardButton(f"➕ Slot {s}: Empty", callback_data=f"newslot:{s}")
         buttons.append([btn])
-    
+
     if action == "setup" and list_chars(uid):
         buttons.append([telebot.types.InlineKeyboardButton("🗑️ Delete Character", callback_data="deletechar")])
-    
+
     markup = telebot.types.InlineKeyboardMarkup(buttons)
     msg = "🎭 *Tumhare Characters:*\n\nKoi select karo ya naya banao:" if list_chars(uid) else "✨ *Pehla character banao!*\n\nKoi slot choose karo:"
     bot.send_message(chat_id, msg, parse_mode='Markdown', reply_markup=markup)
@@ -543,7 +571,7 @@ def show_slots(uid, chat_id, action="setup"):
 def cmd_start(msg):
     uid = str(msg.from_user.id)
     name = msg.from_user.first_name or "yaar"
-    
+
     text = (
         f"👋 *Hey {name}!*\n\n"
         "Apna *AI companion* banao — bilkul apne hisaab se.\n"
@@ -577,7 +605,7 @@ def handle_callback(call):
     uid = str(call.from_user.id)
     data = call.data
     chat_id = call.message.chat.id
-    
+
     bot.answer_callback_query(call.id)
 
     if data == "manage":
@@ -612,10 +640,9 @@ def handle_callback(call):
             bot.send_message(chat_id, "Character nahi mila. /start se banao.")
             return
         set_state(uid, active_slot=slot)
-        
+
         hist = get_history(uid, slot, 1)
         if not hist:
-            # First meeting — generate intro
             intro = ask_ai(uid, slot, "__INTRO__")
             bot.send_message(chat_id, intro)
         else:
@@ -648,8 +675,7 @@ def handle_text(msg):
     if step and step != 'gender':
         sd = state['setup_data'] or {}
         if isinstance(sd, str): sd = json.loads(sd)
-        
-        # Validate age
+
         if step == 'age':
             try:
                 age = int(msg.text.strip())
@@ -675,7 +701,6 @@ def handle_text(msg):
             set_state(uid, setup_step=next_step, setup_data=json.dumps(sd))
             send_step(msg.chat.id, next_step, setup_data=sd)
         else:
-            # Done
             slot = sd.pop('slot', 1)
             finish_setup(uid, msg.chat.id, sd, slot)
         return
@@ -701,15 +726,13 @@ def handle_text(msg):
             schedule_message(uid, slot, sched_time)
 
     reply = ask_ai(uid, slot, user_text)
-    
+
     if reply:
         try:
             bot.send_message(msg.chat.id, reply)
         except:
             bot.send_message(msg.chat.id, reply, parse_mode=None)
-    # if reply is None (API failure) — stay silent, no error message shown
-    
-    # Sometimes send a follow-up unprompted (20% chance)
+
     if reply and random.random() < 0.50:
         time.sleep(random.uniform(10, 25))
         follow_msgs = get_history(uid, slot, 1)
@@ -721,7 +744,6 @@ def handle_text(msg):
             except: pass
 
 def get_image_description(file_id, is_sticker=False):
-    """Download image/sticker and describe via Gemini Vision (free)."""
     if not GEMINI_API_KEY:
         return None
     try:
@@ -730,17 +752,16 @@ def get_image_description(file_id, is_sticker=False):
         img_data = requests.get(file_url, timeout=10).content
         import base64
         b64 = base64.b64encode(img_data).decode()
-        
-        # Detect mime type from extension
+
         ext = file_info.file_path.split('.')[-1].lower()
         mime_map = {'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',
                     'webp': 'image/webp', 'gif': 'image/gif'}
-        mime = mime_map.get(ext, 'image/webp')  # stickers are usually webp
-        
+        mime = mime_map.get(ext, 'image/webp')
+
         prompt = ("This is a sticker. In 1-2 sentences describe what it shows/means (mood, character, emotion, object)."
                   if is_sticker else
                   "In 1-2 sentences describe what's in this image (people, objects, scene, mood, text if any).")
-        
+
         payload = {
             "contents": [{"role": "user", "parts": [
                 {"inline_data": {"mime_type": mime, "data": b64}},
@@ -769,30 +790,26 @@ def handle_image(msg):
     if not char: return
 
     bot.send_chat_action(msg.chat.id, 'typing')
-    
+
     is_sticker = msg.content_type == 'sticker'
     if is_sticker:
         file_id = msg.sticker.file_id
     else:
-        file_id = msg.photo[-1].file_id  # highest res
+        file_id = msg.photo[-1].file_id
 
     img_desc = get_image_description(file_id, is_sticker=is_sticker)
-    
+
     if img_desc:
-        # Build context message for AI
         context_msg = f"__IMAGE__{' (sticker)' if is_sticker else ''}: {img_desc}"
         if msg.caption:
             context_msg += f" | Caption: {msg.caption}"
     else:
-        # Vision failed — give generic context
         context_msg = "__IMAGE__: user ne ek " + ("sticker" if is_sticker else "photo") + " bheja"
 
     reply = ask_ai(uid, slot, context_msg)
     if reply:
         try: bot.send_message(msg.chat.id, reply)
         except: bot.send_message(msg.chat.id, reply, parse_mode=None)
-
-
 
 
 # ── FLASK ROUTES ──
@@ -863,7 +880,7 @@ if __name__ == "__main__":
                 print("Webhook OK.")
         except Exception as e:
             print(f"Webhook err: {e}")
-    
+
     start_scheduler()
     port = int(os.environ.get('PORT', 5000))
     print(f"Port: {port}")
