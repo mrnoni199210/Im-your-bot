@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Companion</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:    #09090f;
+  --s1:    #111118;
+  --s2:    #18181f;
+  --s3:    #222230;
+  --s4:    #2c2c3e;
+  --line:  rgba(255,255,255,0.055);
+  --line2: rgba(255,255,255,0.09);
+  --a:     #6c5ce7;
+  --a2:    #8b7ff5;
+  --t0:    #eeeaf8;
+  --t1:    #a8a4c0;
+  --t2:    #6a667a;
+  --t3:    #3f3c50;
+  --sent:  #352e7a;
+  --green: #3db87a;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t0);font-family:'Inter',sans-serif;font-size:15px}
+.app{height:100vh;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
+
+/* header */
+.hdr{
+  display:flex;align-items:center;gap:11px;
+  padding:12px 15px 10px;
+  background:rgba(9,9,15,.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--line);flex-shrink:0;
+}
+.ava{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(145deg,var(--a),#a855f7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;color:#fff;flex-shrink:0;
+  position:relative;letter-spacing:.02em;
+}
+.ava-dot{
+  position:absolute;bottom:-2px;right:-2px;
+  width:8px;height:8px;background:var(--green);
+  border-radius:50%;border:2px solid var(--bg);
+}
+.hdr-info{flex:1;min-width:0}
+.hdr-name{
+  font-family:'Playfair Display',serif;font-size:15px;font-weight:500;
+  color:var(--t0);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;
+}
+.hdr-sub{font-size:10.5px;color:var(--green);margin-top:1px}
+.hdr-btns{display:flex;gap:5px}
+.ibtn{
+  width:32px;height:32px;border:1px solid var(--line);background:transparent;
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--t2);transition:background .12s,color .12s;
+}
+.ibtn:hover{background:var(--s2);color:var(--t1)}
+.ibtn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* switcher */
+.sw{
+  display:none;flex-shrink:0;padding:7px 11px;gap:6px;
+  background:var(--s1);border-bottom:1px solid var(--line);
+  overflow-x:auto;scrollbar-width:none;
+}
+.sw::-webkit-scrollbar{display:none}
+.sw.open{display:flex}
+.sc{
+  display:flex;align-items:center;gap:7px;padding:6px 10px;
+  background:var(--s2);border:1px solid var(--line);border-radius:9px;
+  cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s;
+}
+.sc:hover{border-color:var(--line2)}
+.sc.on{background:rgba(108,92,231,.1);border-color:rgba(108,92,231,.28)}
+.sc-a{
+  width:24px;height:24px;border-radius:6px;
+  background:linear-gradient(145deg,var(--a),#a855f7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:600;color:#fff;
+}
+.sc-name{font-size:12.5px;font-weight:500;color:var(--t0)}
+.sc-meta{font-size:10px;color:var(--t2);margin-top:.5px}
+.sc-add{
+  width:38px;height:38px;flex-shrink:0;
+  border:1px dashed var(--line2);border-radius:9px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--t3);transition:all .12s;
+}
+.sc-add:hover{border-color:var(--a2);color:var(--a2)}
+.sc-add svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+
+/* messages */
+.msgs{
+  flex:1;overflow-y:auto;padding:12px 12px;
+  display:flex;flex-direction:column;gap:2px;
+  overscroll-behavior:contain;
+}
+.msgs::-webkit-scrollbar{width:2px}
+.msgs::-webkit-scrollbar-thumb{background:var(--s4);border-radius:1px}
+
+/* welcome */
+.wlc{
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;padding:44px 24px 20px;gap:8px;
+  animation:fi .35s ease both;
+}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.wlc-a{
+  width:60px;height:60px;border-radius:16px;
+  background:linear-gradient(145deg,var(--a),#a855f7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:600;color:#fff;
+  box-shadow:0 6px 24px rgba(108,92,231,.2);margin-bottom:4px;
+}
+.wlc-name{font-family:'Playfair Display',serif;font-size:20px;color:var(--t0)}
+.wlc-meta{font-size:11.5px;color:var(--t2)}
+.wlc-traits{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:5px}
+.wlc-tag{
+  padding:2px 8px;background:var(--s2);border:1px solid var(--line);
+  border-radius:20px;font-size:10.5px;color:var(--t2);
+}
+
+/* bubbles */
+.br{display:flex;align-items:flex-end;gap:6px;animation:bp .2s cubic-bezier(.34,1.35,.64,1) both}
+@keyframes bp{from{opacity:0;transform:scale(.91) translateY(4px)}to{opacity:1;transform:none}}
+.br.me{flex-direction:row-reverse}
+.ba{
+  width:24px;height:24px;border-radius:7px;
+  background:linear-gradient(145deg,var(--a),#a855f7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:600;color:#fff;flex-shrink:0;align-self:flex-end;
+}
+.ba.h{opacity:0;pointer-events:none}
+.br.me .ba{display:none}
+.bw{display:flex;flex-direction:column;max-width:76%}
+.br.me .bw{align-items:flex-end}
+.bb{padding:8px 12px;border-radius:13px;font-size:14px;line-height:1.55;word-break:break-word}
+.br.her .bb{background:var(--s2);color:var(--t0);border:1px solid var(--line);border-bottom-left-radius:3px}
+.br.me .bb{background:var(--sent);color:#ddd6ff;border-bottom-right-radius:3px;box-shadow:0 2px 8px rgba(53,46,122,.4)}
+.bt{font-size:9.5px;color:var(--t3);margin-top:2px;padding:0 1px}
+.mg{margin-bottom:5px}
+
+/* date divider */
+.dv{
+  display:flex;align-items:center;gap:8px;
+  margin:8px 0 5px;font-size:9.5px;
+  color:var(--t3);letter-spacing:.07em;text-transform:uppercase;
+}
+.dv::before,.dv::after{content:'';flex:1;height:1px;background:var(--line)}
+
+/* typing */
+.typ{display:none;align-items:flex-end;gap:6px;margin-bottom:5px}
+.typ.on{display:flex}
+.typ-b{
+  background:var(--s2);border:1px solid var(--line);
+  border-radius:13px;border-bottom-left-radius:3px;
+  padding:10px 13px;display:flex;gap:3px;align-items:center;
+}
+.td{width:4px;height:4px;border-radius:50%;background:var(--a2);animation:td 1.15s ease-in-out infinite}
+.td:nth-child(2){animation-delay:.15s}
+.td:nth-child(3){animation-delay:.3s}
+@keyframes td{0%,60%,100%{transform:translateY(0);opacity:.3}30%{transform:translateY(-4px);opacity:1}}
+
+/* input */
+.inp-area{
+  padding:8px 11px 11px;
+  background:rgba(9,9,15,.95);backdrop-filter:blur(20px);
+  border-top:1px solid var(--line);
+  display:flex;align-items:flex-end;gap:7px;flex-shrink:0;
+}
+.inp-box{
+  flex:1;background:var(--s2);border:1px solid var(--line);
+  border-radius:12px;display:flex;align-items:flex-end;
+  padding:7px 12px;min-height:38px;transition:border-color .15s;
+}
+.inp-box:focus-within{border-color:rgba(108,92,231,.38)}
+#txt{
+  flex:1;background:none;border:none;outline:none;
+  color:var(--t0);font-family:'Inter',sans-serif;font-size:14px;
+  resize:none;max-height:88px;line-height:1.5;
+}
+#txt::placeholder{color:var(--t3)}
+.sbtn{
+  width:38px;height:38px;border-radius:11px;
+  background:linear-gradient(145deg,var(--a),#7c3aed);
+  border:none;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 10px rgba(108,92,231,.3);transition:transform .1s,opacity .1s;
+}
+.sbtn:active{transform:scale(.9)}
+.sbtn:disabled{opacity:.38;cursor:not-allowed}
+.sbtn svg{width:16px;height:16px;fill:#fff}
+
+/* no char */
+.nc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;gap:12px;text-align:center}
+.nc-t{font-family:'Playfair Display',serif;font-size:18px;color:var(--t0)}
+.nc-s{font-size:12.5px;color:var(--t2);line-height:1.65}
+
+/* info sheet */
+.ov{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);backdrop-filter:blur(5px);align-items:flex-end;justify-content:center}
+.ov.open{display:flex}
+.sh{
+  background:var(--s1);border:1px solid var(--line);
+  border-radius:18px 18px 0 0;
+  padding:18px 18px 28px;width:100%;max-width:520px;
+  animation:su .22s cubic-bezier(.34,1.1,.64,1) both;
+}
+@keyframes su{from{transform:translateY(100%)}to{transform:none}}
+.sh-h{width:28px;height:2px;background:var(--s4);border-radius:1px;margin:0 auto 16px}
+.sh-a{width:52px;height:52px;border-radius:14px;background:linear-gradient(145deg,var(--a),#a855f7);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;color:#fff;margin:0 auto 9px}
+.sh-n{font-family:'Playfair Display',serif;font-size:18px;text-align:center;color:var(--t0)}
+.sh-m{font-size:10.5px;color:var(--t2);text-align:center;margin-top:2px}
+.sh-fs{margin-top:16px;display:flex;flex-direction:column;gap:11px}
+.sh-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:3px}
+.sh-v{font-size:12.5px;color:var(--t1);line-height:1.55}
+.sh-c{margin-top:16px;width:100%;padding:11px;background:var(--s2);border:1px solid var(--line);border-radius:11px;color:var(--t1);font-family:'Inter',sans-serif;font-size:13.5px;cursor:pointer}
+
+/* toast */
+.toast{
+  position:fixed;bottom:68px;left:50%;
+  transform:translateX(-50%) translateY(8px);
+  background:var(--s2);border:1px solid var(--line2);
+  color:var(--t1);padding:7px 14px;
+  border-radius:18px;font-size:11.5px;
+  opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap;z-index:999;
+}
+.toast.err{color:#fca5a5;border-color:rgba(239,68,68,.25)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <div class="ava" id="hava"><span id="hava-t">—</span><div class="ava-dot"></div></div>
+    <div class="hdr-info">
+      <div class="hdr-name" id="hname">Loading</div>
+      <div class="hdr-sub" id="hsub">Online</div>
+    </div>
+    <div class="hdr-btns">
+      <div class="ibtn" onclick="toggleSw()" title="Switch">
+        <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V5a2 2 0 0 1 2-2h16M7 23l-4-4 4-4"/><path d="M21 13v6a2 2 0 0 1-2 2H3"/></svg>
+      </div>
+      <div class="ibtn" onclick="openInfo()" title="Info">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12.01" cy="8" r=".6" fill="currentColor"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="sw" id="sw"></div>
+
+  <div class="msgs" id="msgs">
+    <div style="flex:1"></div>
+    <div class="typ" id="typ">
+      <div class="ba" id="typ-a">—</div>
+      <div class="typ-b"><div class="td"></div><div class="td"></div><div class="td"></div></div>
+    </div>
+  </div>
+
+  <div class="inp-area" id="inp-area">
+    <div class="inp-box"><textarea id="txt" placeholder="Message..." rows="1"></textarea></div>
+    <button class="sbtn" id="sbtn" onclick="send()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="ov" id="ov" onclick="closeInfo(event)">
+  <div class="sh">
+    <div class="sh-h"></div>
+    <div class="sh-a" id="sha"></div>
+    <div class="sh-n" id="shn"></div>
+    <div class="sh-m" id="shm"></div>
+    <div class="sh-fs" id="shfs"></div>
+    <button class="sh-c" onclick="closeInfo()">Close</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();tg.setHeaderColor('#09090f');tg.setBackgroundColor('#09090f')}
+const B=window.location.origin;
+const P=new URLSearchParams(window.location.search);
+const uid=tg?.initDataUnsafe?.user?.id||'webapp_user';
+const gl=g=>g==='male'?'M':'F';
+
+let chars=[],aSlot=parseInt(P.get('slot')||'1'),aChar=null,busy=false,swOpen=false;
+const ME=document.getElementById('msgs');
+const TX=document.getElementById('txt');
+const TY=document.getElementById('typ');
+const SB=document.getElementById('sbtn');
+const TO=document.getElementById('toast');
+
+async function init(){
+  await loadChars();
+  if(!chars.length){noChar();return}
+  if(!chars.find(c=>c.slot===aSlot))aSlot=chars[0].slot;
+  await swChar(aSlot,false)
+}
+
+async function loadChars(){
+  try{const r=await fetch(`${B}/chars/${uid}`);chars=await r.json()}catch{chars=[]}
+  renderSw()
+}
+
+function noChar(){
+  document.getElementById('hname').textContent='No character';
+  document.getElementById('hsub').textContent='Create one via Telegram';
+  document.getElementById('inp-area').style.display='none';
+  ME.innerHTML='<div class="nc"><div class="nc-t">No Character</div><div class="nc-s">Open the Telegram bot and use /start to create your companion.</div></div>'
+}
+
+function renderSw(){
+  const sw=document.getElementById('sw');sw.innerHTML='';
+  chars.forEach(c=>{
+    const d=document.createElement('div');
+    d.className=`sc${c.slot===aSlot?' on':''}`;
+    d.innerHTML=`<div class="sc-a">${gl(c.gender)}</div><div><div class="sc-name">${c.name}</div><div class="sc-meta">${c.age}y · ${c.gender}</div></div>`;
+    d.onclick=()=>swChar(c.slot);sw.appendChild(d)
+  });
+  if(chars.length<3){
+    const a=document.createElement('div');a.className='sc-add';
+    a.innerHTML='<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+    a.onclick=()=>toast('Create characters via Telegram /start');sw.appendChild(a)
+  }
+}
+
+async function swChar(slot,anim=true){
+  aSlot=slot;aChar=chars.find(c=>c.slot===slot);if(!aChar)return;
+  const g=gl(aChar.gender);
+  document.getElementById('hava-t').textContent=g;
+  document.getElementById('typ-a').textContent=g;
+  document.getElementById('hname').textContent=aChar.name;
+  document.getElementById('hsub').textContent=`Online · ${aChar.age}y`;
+  renderSw();if(swOpen)toggleSw();
+  await loadHist(slot,anim)
+}
+
+async function loadHist(slot,anim){
+  try{const r=await fetch(`${B}/history/${uid}/${slot}`);const h=await r.json();renderMsgs(h,anim)}
+  catch{renderWelcome()}
+}
+
+function renderMsgs(hist,anim){
+  while(ME.firstChild&&ME.firstChild!==TY)ME.removeChild(ME.firstChild);
+  if(!hist||!hist.length){renderWelcome();return}
+  TY.remove();
+  const f=document.createDocumentFragment();
+  const dv=document.createElement('div');dv.className='dv';dv.textContent='Today';f.appendChild(dv);
+  let lr=null;
+  hist.forEach((m,i)=>{
+    const isMe=m.role==='user';const role=isMe?'me':'her';const g=gl(aChar?.gender);
+    const r=document.createElement('div');r.className=`br ${role}`;
+    if(anim)r.style.animationDelay=`${Math.min(i*.025,.28)}s`;
+    const sa=!isMe&&lr!=='her';
+    r.innerHTML=`<div class="ba${sa?'':' h'}">${g}</div><div class="bw"><div class="bb">${esc(m.content)}</div><div class="bt">${ts()}</div></div>`;
+    f.appendChild(r);lr=role
+  });
+  ME.appendChild(f);ME.appendChild(TY);scrollEnd()
+}
+
+function renderWelcome(){
+  const g=gl(aChar?.gender);
+  const traits=(aChar?.characteristics||'').split(',').slice(0,4).filter(Boolean);
+  TY.remove();while(ME.firstChild)ME.removeChild(ME.firstChild);
+  const w=document.createElement('div');w.className='wlc';
+  w.innerHTML=`<div class="wlc-a">${g}</div><div class="wlc-name">${aChar?.name||'—'}</div><div class="wlc-meta">${aChar?.age}y · ${aChar?.relationship||'Companion'}</div><div class="wlc-traits">${traits.map(t=>`<span class="wlc-tag">${t.trim()}</span>`).join('')}</div>`;
+  ME.appendChild(w);ME.appendChild(TY)
+}
+
+async function send(){
+  const text=TX.value.trim();if(!text||busy)return;
+  if(!aChar){toast('Create a character first');return}
+  TX.value='';TX.style.height='auto';
+  addBubble(text,'me');
+  busy=true;SB.disabled=true;showTyp(true);setSub('Typing...');
+  try{
+    const r=await fetch(`${B}/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:uid,slot:aSlot,message:text})});
+    if(!r.ok)throw new Error(r.status);
+    const d=await r.json();
+    showTyp(false);
+    if(d.reply){addBubble(d.reply,'her')}
+    setSub(`Online · ${aChar.age}y`)
+  }catch{
+    showTyp(false);setSub('Online')
+  }
+  busy=false;SB.disabled=false;TX.focus()
+}
+
+function addBubble(text,role){
+  TY.remove();const g=gl(aChar?.gender);
+  const r=document.createElement('div');r.className=`br ${role}`;
+  r.innerHTML=`<div class="ba">${g}</div><div class="bw"><div class="bb">${esc(text)}</div><div class="bt">${ts()}</div></div>`;
+  ME.appendChild(r);ME.appendChild(TY);scrollEnd()
+}
+
+function toggleSw(){swOpen=!swOpen;document.getElementById('sw').classList.toggle('open',swOpen)}
+function showTyp(v){TY.classList.toggle('on',v);if(v)scrollEnd()}
+function setSub(t){document.getElementById('hsub').textContent=t}
+function scrollEnd(){setTimeout(()=>ME.scrollTo({top:ME.scrollHeight,behavior:'smooth'}),50)}
+function ts(){return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})}
+function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>')}
+function toast(m,err=false){TO.textContent=m;TO.className=`toast${err?' err':''} on`;setTimeout(()=>TO.classList.remove('on'),3000)}
+
+function openInfo(){
+  if(!aChar)return;const g=gl(aChar.gender);
+  document.getElementById('sha').textContent=g;
+  document.getElementById('shn').textContent=aChar.name;
+  document.getElementById('shm').textContent=`${aChar.age} years · ${aChar.gender}`;
+  const fs=[{l:'Appearance',v:aChar.appearance},{l:'Personality',v:aChar.characteristics},{l:'Relation',v:aChar.relationship},{l:'Scene',v:aChar.scene},{l:'Backstory',v:aChar.description}].filter(f=>f.v);
+  document.getElementById('shfs').innerHTML=fs.map(f=>`<div><div class="sh-l">${f.l}</div><div class="sh-v">${esc(f.v)}</div></div>`).join('');
+  document.getElementById('ov').classList.add('open')
+}
+function closeInfo(e){if(!e||e.target===document.getElementById('ov'))document.getElementById('ov').classList.remove('open')}
+
+TX.addEventListener('input',()=>{TX.style.height='auto';TX.style.height=Math.min(TX.scrollHeight,88)+'px'});
+TX.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+init().then(()=>setTimeout(()=>TX.focus(),500));
+</script>
+</body>
+</html>
