@@ -435,13 +435,13 @@ STEP_PROMPTS = {
         [telebot.types.InlineKeyboardButton("👨 Male", callback_data="setup:gender:male"),
          telebot.types.InlineKeyboardButton("👩 Female", callback_data="setup:gender:female")]
     ]),
-    'age': ("🔢 *Bot ki umar likho (18+):*\n\nSirf number type karo, jitni bhi chahte ho.", None),
-    'name': ("✏️ *Bot ka naam likho:*\n\nKoi bhi naam — jo tumhe achha lage.", None),
+    'age': (" *Bot ki umar likho (18+):*\n\nSirf number type karo, jitni bhi chahte ho.", None),
+    'name': (" *Bot ka naam likho:*\n\nKoi bhi naam — jo tumhe achha lage.", None),
     'nickname': (
         "*{name} tumhe kya bulaye?*\n\n"
         "Agar koi specific naam chahte ho jisse wo tumhe pukare — likhdo.\n"
         "Skip karna ho toh sirf — likhke bhejo.\n\n"
-        "_Example: Adi, Shona, Jaan, bhai, yaar — jo bhi natural lage_",
+        "_Example: Shritya, Jaan, bhai, yaar — jo bhi natural lage_",
         None
     ),
     'appearance': (
