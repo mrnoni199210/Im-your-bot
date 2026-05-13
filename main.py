@@ -453,7 +453,7 @@ STEP_PROMPTS = {
     'characteristics': (
         "🧠 *Characteristics/personality:*\n\n"
         "Words ya phrases — jitne chahte ho.\n\n"
-        "_Example: shy at first but opens up, naughty, clingy, little possessive, moody, secretly flirty, loves late night talks_",
+        "_Example: shy at first but opens up, naughty, clingy, little possessive, moody, flirty_",
         None
     ),
     'relationship': (
