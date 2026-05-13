@@ -1,0 +1,6 @@
+pyTelegramBotAPI
+flask
+requests
+psycopg2-binary
+APScheduler==3.10.4
+gunicorn
