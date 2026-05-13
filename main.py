@@ -453,25 +453,24 @@ STEP_PROMPTS = {
     'characteristics': (
         "🧠 *Characteristics/personality:*\n\n"
         "Words ya phrases — jitne chahte ho.\n\n"
-        "_Example: shy at first but opens up, naughty, clingy, little possessive, moody, flirty_",
+        "_Example: Shy at first but opens up, naughty, clingy, little possessive, moody, flirty_",
         None
     ),
     'relationship': (
         "💞 *Tumhara relationship bot se:*\n\n"
         "Jo bhi chahe — koi limit nahi.\n\n"
-        "_Example: best friend who secretly likes you, classmate with tension, coworker, childhood friend, stranger at a bar_",
+        "_Example: Best friend who secretly likes you, classmate with tension, coworker, childhood friend, stranger at a bar_",
         None
     ),
     'scene': (
         "🎬 *Scene/setting:*\n\n"
         "Kahan ho aur kya chal raha hai batao.\n\n"
-        "_Example: late night in college library studying together, or sitting in your room after a party, or at a rooftop cafe at sunset_",
+        "_Example: Late night in college library studying together, or sitting in your room after a party, or at a rooftop cafe at sunset_",
         None
     ),
     'description': (
-        "*Backstory / Context* _(optional)_\n\n"
+        "*Backstory / Context*\n\n"
         "Tum dono ka rishta, feelings, shared memories — jo bhi add karna ho.\n"
-        "Skip karna ho toh sirf — likhke bhejo.\n\n"
         "_Example: Hum dono college se dost hain, usne mujhe bohot mushkil waqt mein support kiya tha. Dono ko ek doosre pe crush hai par koi nahi bolta. Hum raat ko aksar baat karte hain._",
         None
     ),
