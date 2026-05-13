@@ -445,31 +445,31 @@ STEP_PROMPTS = {
         "*{name} tumhe kya bulaye?*\n\n"
         "Agar koi specific naam chahte ho jisse wo tumhe pukare — likhdo.\n"
         "Skip karna ho toh sirf — likhke bhejo.\n\n"
-        "_Example: Adi, Shona, Jaan, bhai, yaar — jo bhi natural lage_",
+        "_Example: Shritya, Shona, Jaan, bhai, yaar — jo bhi natural lage_",
         None
     ),
     'appearance': (
         "👁️ *Appearance describe karo:*\n\n"
         "Jitna detail chahte ho likhso — koi limit nahi.\n\n"
-        "_Example: Lambe black baal, badi aankhein, fair skin, 5'4\", slim but curves hain, cute face, dimples_",
+        "_Example: Lambe black baal, badi aankhein, fair skin, 5'4\", cute face, dimples_",
         None
     ),
     'characteristics': (
         "🧠 *Characteristics/personality:*\n\n"
         "Words ya phrases — jitne chahte ho.\n\n"
-        "_Example: shy at first but opens up, naughty, clingy, little possessive, moody, secretly flirty, loves late night talks_",
+        "_Example: Shy at first but opens up, naughty, clingy, little possessive, moody, flirty_",
         None
     ),
     'relationship': (
         "💞 *Tumhara relationship bot se:*\n\n"
         "Jo bhi chahe — koi limit nahi.\n\n"
-        "_Example: best friend who secretly likes you, classmate with tension, coworker, childhood friend, stranger at a bar_",
+        "_Example: Best friend who secretly likes you, classmate with tension, coworker, childhood friend, stranger at a bar_",
         None
     ),
     'scene': (
         "🎬 *Scene/setting:*\n\n"
         "Kahan ho aur kya chal raha hai batao.\n\n"
-        "_Example: late night in college library studying together, or sitting in your room after a party, or at a rooftop cafe at sunset_",
+        "_Example: Late night in college library studying together, or sitting in your room after a party, or at a rooftop cafe at sunset_",
         None
     ),
     'description': (
