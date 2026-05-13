@@ -93,6 +93,10 @@ def get_state(uid):
     return {'active_slot':row[0],'setup_step':row[1],'setup_data':row[2] or {},'last_seen':row[3],'total_msgs':row[4]}
 
 def set_state(uid, **kwargs):
+    # Auto-convert any dict values to JSON string for JSONB columns
+    for k, v in kwargs.items():
+        if isinstance(v, dict):
+            kwargs[k] = json.dumps(v)
     conn = get_conn(); c = conn.cursor()
     c.execute('SELECT user_id FROM user_state WHERE user_id=%s', (uid,))
     exists = c.fetchone()
@@ -435,13 +439,13 @@ STEP_PROMPTS = {
         [telebot.types.InlineKeyboardButton("👨 Male", callback_data="setup:gender:male"),
          telebot.types.InlineKeyboardButton("👩 Female", callback_data="setup:gender:female")]
     ]),
-    'age': (" *Bot ki umar likho (18+):*\n\nSirf number type karo, jitni bhi chahte ho.", None),
-    'name': (" *Bot ka naam likho:*\n\nKoi bhi naam — jo tumhe achha lage.", None),
+    'age': ("🔢 *Bot ki umar likho (18+):*\n\nSirf number type karo, jitni bhi chahte ho.", None),
+    'name': ("✏️ *Bot ka naam likho:*\n\nKoi bhi naam — jo tumhe achha lage.", None),
     'nickname': (
         "*{name} tumhe kya bulaye?*\n\n"
         "Agar koi specific naam chahte ho jisse wo tumhe pukare — likhdo.\n"
         "Skip karna ho toh sirf — likhke bhejo.\n\n"
-        "_Example: Shritya, Jaan, bhai, yaar — jo bhi natural lage_",
+        "_Example: Adi, Shona, Jaan, bhai, yaar — jo bhi natural lage_",
         None
     ),
     'appearance': (
@@ -453,24 +457,25 @@ STEP_PROMPTS = {
     'characteristics': (
         "🧠 *Characteristics/personality:*\n\n"
         "Words ya phrases — jitne chahte ho.\n\n"
-        "_Example: Shy at first but opens up, naughty, clingy, little possessive, moody, flirty_",
+        "_Example: shy at first but opens up, naughty, clingy, little possessive, moody, secretly flirty, loves late night talks_",
         None
     ),
     'relationship': (
         "💞 *Tumhara relationship bot se:*\n\n"
         "Jo bhi chahe — koi limit nahi.\n\n"
-        "_Example: Best friend who secretly likes you, classmate with tension, coworker, childhood friend, stranger at a bar_",
+        "_Example: best friend who secretly likes you, classmate with tension, coworker, childhood friend, stranger at a bar_",
         None
     ),
     'scene': (
         "🎬 *Scene/setting:*\n\n"
         "Kahan ho aur kya chal raha hai batao.\n\n"
-        "_Example: Late night in college library studying together, or sitting in your room after a party, or at a rooftop cafe at sunset_",
+        "_Example: late night in college library studying together, or sitting in your room after a party, or at a rooftop cafe at sunset_",
         None
     ),
     'description': (
-        "*Backstory / Context*\n\n"
+        "*Backstory / Context* _(optional)_\n\n"
         "Tum dono ka rishta, feelings, shared memories — jo bhi add karna ho.\n"
+        "Skip karna ho toh sirf — likhke bhejo.\n\n"
         "_Example: Hum dono college se dost hain, usne mujhe bohot mushkil waqt mein support kiya tha. Dono ko ek doosre pe crush hai par koi nahi bolta. Hum raat ko aksar baat karte hain._",
         None
     ),
